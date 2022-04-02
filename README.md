@@ -55,6 +55,47 @@ auto constexpr s123 = concatenate_struct( s1, s2, s3 );
 
 This will concatenate mutiple meta-structures, and returns a meta-structure holding all the fields.
 
+## Tips and Pitfalls:
+
+The `constexpr` specifier is guaranteed for each meta-structure instance if and only if the value type's ctor is `constexpr`-aware.
+
+That is to say, in case the class `C1`'s ctor is `constexpr`:
+
+```cpp
+struct C1 // default ctor is constexpr
+{
+    int val_;
+};
+```
+
+Then the result from `CRUD` operations is `constexpr` guaranteed. For example:
+
+```cpp
+auto constexpr s1 = create_struct( make_member<"xx">(true) );
+auto constexpr s2 = update_struct<"xx">( C1{42} ); // <-- OK
+```
+
+However, if a class `C2`'s ctor is not `constexpr`:
+
+```cpp
+struct C1
+{
+    C1( int val ) : val_{ val } {} // <- not a constexpr ctor
+    int val_;
+};
+```
+
+Then the result from `CRUD` cannot be specified `constexpr`. For example:
+
+```cpp
+auto constexpr s1 = create_struct( make_member<"xx">(true) );
+auto constexpr s2 = update_struct<"xx">( C2{42} ); // <-- NOT OK
+auto s3 = update_struct<"xx">( C2{42} ); // <-- this is OK
+```
+
+It should be be emphasised that, even though `std::string`'s ctor is supposed to be `constexpr` by the standard, but for now (4/2/2022) gcc and llvm have not yet implemented this feature.
+
+
 
 ## License
 

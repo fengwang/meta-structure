@@ -3,7 +3,6 @@
 #include <iostream>
 #include <string>
 
-
 // create
 void test_create()
 {
@@ -31,6 +30,28 @@ void test_read()
     std::cout << "---------------------------------------------------------\n";
 }
 
+struct id
+{
+    int id_;
+};
+
+std::ostream& operator<<(std::ostream& os, const id& id)
+{
+    return os << id.id_;
+}
+
+struct jd
+{
+    jd( int jd__ ) : jd_( jd__ ) {}
+    int jd_;
+};
+
+std::ostream& operator<<(std::ostream& os, const jd& jd)
+{
+    return os << jd.jd_;
+}
+
+
 // update
 void test_update()
 {
@@ -44,14 +65,19 @@ void test_update()
 
     std::cout << "\nafter update one with 1.01(double), the structure becomes:" << std::endl;
     constexpr auto t = update_struct<"one">( s, 1.01 );
+    //auto t = update_struct<"one">( s, 1.01 );
     map_struct( t, print_func );
 
     std::cout << "\nafter update two with '2.0'(float), the structure becomes:" << std::endl;
-    constexpr auto u = update_struct<"two">( t, 2.0f );
+    //constexpr auto u = update_struct<"two">( t, std::string{"2.00000f"} );
+    constexpr auto u = update_struct<"two">( t, id{1270} );
+    //auto u = update_struct<"two">( t, std::string{"2.00000f"} );
     map_struct( u, print_func );
 
     std::cout << "\nafter update three with 'c'(char), the structure becomes:" << std::endl;
-    constexpr auto v = update_struct<"three">( u, 'c' );
+    //constexpr auto v = update_struct<"three">( u, 'c' );
+    auto v = update_struct<"three">( u, jd{13} );
+    //auto v = update_struct<"three">( u, 'c' );
     map_struct( v, print_func );
     std::cout << "---------------------------------------------------------\n";
 }
