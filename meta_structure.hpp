@@ -101,9 +101,9 @@ constexpr auto create_struct(Members const& ... members) noexcept
 template< Structure S1, Structure S2 >
 constexpr auto concatenate_struct(S1 const& structure1, S2 const& structure2) noexcept
 {
-    return structure1( [=]<Member ... MS>(MS const& ... members) noexcept
+    return structure1( [&]<Member ... MS>(MS const& ... members) noexcept
     {
-        return structure2( [=]<Member ... MT>(MT const& ... members2) noexcept { return create_struct(members..., members2...); }); }
+        return structure2( [&]<Member ... MT>(MT const& ... members2) noexcept { return create_struct(members..., members2...); }); }
     );
 }
 
@@ -123,7 +123,7 @@ constexpr auto concatenate_struct(S const& s, SS const& ... ss ) noexcept
 template< fixed_string tag_, Structure S >
 constexpr auto read_struct( S const& structure ) noexcept
 {
-    return structure( [=]<Member M, Member ... MS>( M const& member1, MS const& ... members ) noexcept
+    return structure( [&]<Member M, Member ... MS>( M const& member1, MS const& ... members ) noexcept
     {
         if constexpr ( M::tag() == tag_ )
             return member1.value();
@@ -141,7 +141,7 @@ constexpr auto read_struct( S const& structure ) noexcept
 template< fixed_string tag_, Structure S, typename T >
 constexpr auto update_struct( S const& structure, T const& value ) noexcept
 {
-    return structure( [=]<Member M, Member ... MS>( M const& member1, MS const& ... members ) noexcept
+    return structure( [&]<Member M, Member ... MS>( M const& member1, MS const& ... members ) noexcept
     {
         if constexpr ( M::tag() == tag_ )
             return create_struct( make_member<tag_>( value ), members... );
@@ -159,7 +159,7 @@ constexpr auto update_struct( S const& structure, T const& value ) noexcept
 template< fixed_string tag_, Structure S >
 constexpr auto delete_struct( S const& structure ) noexcept
 {
-    return structure( [=]<Member M, Member ... MS>( M const& member1, MS const& ... members ) noexcept
+    return structure( [&]<Member M, Member ... MS>( M const& member1, MS const& ... members ) noexcept
     {
         if constexpr ( M::tag() == tag_ )
             return create_struct( members... );
