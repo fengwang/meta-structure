@@ -12,9 +12,9 @@ namespace meta
 template< unsigned long N>
 struct fixed_string
 {
+    char data[N + 1] = {};
     constexpr fixed_string(const char (&foo)[N + 1]) { std::copy_n(foo, N + 1, data); }
     auto operator<=>(const fixed_string&) const = default;
-    char data[N + 1] = {};
     constexpr operator std::string() const noexcept { return std::string(data); }
 };//struct fixed_string
 
@@ -26,7 +26,6 @@ constexpr bool operator == (const fixed_string<M>&, const fixed_string<N>&) noex
 
 template <unsigned long N>
 fixed_string(const char (&str)[N]) -> fixed_string<N - 1>;
-
 
 template< fixed_string tag_, typename T >
 struct member
@@ -104,13 +103,8 @@ constexpr auto concatenate_struct(S1 const& structure1, S2 const& structure2) no
 {
     return structure1( [=]<Member ... MS>(MS const& ... members) noexcept
     {
-        return structure2(
-            [=]<Member ... MT>(MT const& ... members2) noexcept
-            {
-                return create_struct(members..., members2...);
-            }
-        );
-    } );
+        return structure2( [=]<Member ... MT>(MT const& ... members2) noexcept { return create_struct(members..., members2...); }); }
+    );
 }
 
 template< Structure S,  Structure ... SS >
@@ -119,7 +113,6 @@ constexpr auto concatenate_struct(S const& s, SS const& ... ss ) noexcept
     if constexpr (sizeof...(SS) == 0 ) return s;
     else return concatenate_struct(s, concatenate_struct(ss...));
 }
-
 
 ///
 /// @brief READ a field from a meta structure.
@@ -189,11 +182,7 @@ constexpr auto map_struct( S const& structure, F && function ) noexcept
         if constexpr( sizeof...(MS) == 0 )
             return create_struct( make_member<M::tag()>(std::forward<F>(function)(member1)) );
         else
-            return concatenate_struct
-            (
-                create_struct( make_member<M::tag()>(std::forward<F>(function)(member1)) ),
-                map_struct( create_struct(members...), std::forward<F>(function) )
-            );
+            return concatenate_struct ( create_struct( make_member<M::tag()>(std::forward<F>(function)(member1)) ), map_struct( create_struct(members...), std::forward<F>(function) ) );
     } );
 }
 
