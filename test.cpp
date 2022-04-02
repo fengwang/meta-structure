@@ -13,6 +13,15 @@ void test_create()
     constexpr auto print_func =  []<Member M>(M const& member) { std::cout << static_cast<std::string>(M::tag()) << ": " << member.value() << std::endl; return member.value(); };
     map_struct( s, print_func );
 
+    auto constexpr t = create_struct( make_member<"a">( 'a' ) );
+    map_struct( t, print_func );
+
+    auto constexpr u = create_struct( make_member<"abc">( "abc" ) );
+    map_struct( u, print_func );
+
+    auto w = create_struct( make_member<"def">( std::string{"def"} ) ); // <-- not constexprable
+    map_struct( w, print_func );
+
     std::cout << "---------------------------------------------------------\n";
 }
 
@@ -68,6 +77,7 @@ void test_update()
 
     std::cout << "\nafter update two with '2.0'(float), the structure becomes:" << std::endl;
     constexpr auto u = update_struct<"two">( t, id{1270} );
+    //constexpr auto u = update_struct<"two">( t, "12799" );
     map_struct( u, print_func );
 
     std::cout << "\nafter update three with 'c'(char), the structure becomes:" << std::endl;

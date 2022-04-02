@@ -177,7 +177,7 @@ constexpr auto delete_struct( S const& structure ) noexcept
 template< Structure S, typename F >
 constexpr auto map_struct( S const& structure, F && function ) noexcept
 {
-    return structure( [=]<Member M, Member ... MS>( M const& member1, MS const& ... members ) noexcept
+    return structure( [&]<Member M, Member ... MS>( M const& member1, MS const& ... members ) noexcept
     {
         if constexpr( sizeof...(MS) == 0 )
             return create_struct( make_member<M::tag()>(std::forward<F>(function)(member1)) );

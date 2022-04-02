@@ -102,4 +102,10 @@ It should be be emphasised that, even though `std::string`'s ctor is supposed to
 AGPLv3
 
 
+## Acknowledgement
+
+- <https://github.com/google/cpp-from-the-sky-down>
+- <https://www.youtube.com/watch?v=FXfrojjIo80>
+
+
 
