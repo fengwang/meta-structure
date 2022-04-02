@@ -4,7 +4,7 @@
 
 ## Basic Usage:
 
-### Create a meta structure:
+### Create a meta-structure:
 
 ```cpp
 using namespace meta;
@@ -22,7 +22,7 @@ This creates a meta-structure that has three fields.
 auto constexpr two = read_struct<"two">( s );
 ```
 
-This reads out the value stored in field 'two', and returns this value.
+This reads out the value stored in field 'two', and returns the result.
 
 ### Update a field in the meta-structure:
 
@@ -30,7 +30,7 @@ This reads out the value stored in field 'two', and returns this value.
 auto constexpr t = update_struct<"one">( s, 1.01 );
 ```
 
-This updates the value stored in field 'one' to 1.01, and returns a meta-structure reflecting the update.
+This updates the value stored in field 'one' to 1.01, and returns a meta-structure reflecting the change.
 
 
 ### Delete a field in the meta-structure:
@@ -42,7 +42,7 @@ auto constexpr t = delete_struct<"one">( s );
 This will delete the field 'one' in the meta-structure, and returns a meta-structure without this field.
 
 
-### [Bonus] Concanacate mutliple meta-structures
+### [Bonus] Concatenate mutliple meta-structures
 
 ```cpp
 auto constexpr s1 = create_struct( ...... );
@@ -53,7 +53,7 @@ auto constexpr s12 = concatenate_struct( s1, s2 );
 auto constexpr s123 = concatenate_struct( s1, s2, s3 );
 ```
 
-This will concatenate mutiple meta-structures.
+This will concatenate mutiple meta-structures, and returns a meta-structure holding all the fields.
 
 
 ## License
