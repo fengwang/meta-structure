@@ -78,9 +78,9 @@ auto constexpr s2 = update_struct<"xx">( C1{42} ); // <-- OK
 However, if a class `C2`'s ctor is not `constexpr`:
 
 ```cpp
-struct C1
+struct C2
 {
-    C1( int val ) : val_{ val } {} // <- not a constexpr ctor
+    C2( int val ) : val_{ val } {} // <- not a constexpr ctor
     int val_;
 };
 ```
