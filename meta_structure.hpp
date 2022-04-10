@@ -27,6 +27,16 @@ constexpr bool operator == (const fixed_string<M>&, const fixed_string<N>&) noex
 template <unsigned long N>
 fixed_string(const char (&str)[N]) -> fixed_string<N - 1>;
 
+
+template<class... Ts>
+struct overload : Ts...
+{
+    using Ts::operator()...;
+}; // struct overload
+
+template<class... Ts> overload(Ts...) -> overload<Ts...>;
+
+
 template< fixed_string tag_, typename T >
 struct member
 {
@@ -87,7 +97,7 @@ concept Structure = is_structure_v<T>;
 template< Member ... Members >
 constexpr auto create_struct(Members const& ... members) noexcept
 {
-    return structure{ [=]<typename F>( F&& function ) noexcept { return std::forward<F>(function)( members... ); } };
+    return structure{ [=]<typename F>( F&& function ) noexcept { if constexpr (sizeof...(Members)>=1) return std::forward<F>(function)( members... ); } };
 }
 
 ///

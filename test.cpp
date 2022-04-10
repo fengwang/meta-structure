@@ -108,8 +108,32 @@ void test_delete()
     std::cout << "\nafter delete 'two', the structure becomes:" << std::endl;
     map_struct( u, print_func );
 
+    auto constexpr w = delete_struct<"three">( u );
+    std::cout << "\nafter delete 'three', the structure becomes:" << std::endl;
+    map_struct( w, print_func );
+
     std::cout << "---------------------------------------------------------\n";
 }
+
+
+/*
+void test_search()
+{
+    std::cout << std::endl << "test CREATE" << std::endl;
+    using namespace meta;
+
+    auto constexpr s = create_struct( make_member<"one">( 1 ), make_member<"two">( 2UL ), make_member<"three">( 3.0f ) );
+    constexpr auto print_func =  []<Member M>(M const& member) { std::cout << static_cast<std::string>(M::tag()) << ": " << member.value() << std::endl; return member.value(); };
+    std::cout << "created structure:\n" << std::endl;
+    map_struct( s, print_func );
+
+    std::cout << "This structure has field one : " << search_struct<"one">( s ) << std::endl;
+    std::cout << "This structure has field two : " << search_struct<"two">( s ) << std::endl;
+    std::cout << "This structure has field three : " << search_struct<"three">( s ) << std::endl;
+    std::cout << "This structure has field four : " << search_struct<"four">( s ) << std::endl;
+}
+*/
+
 
 int main()
 {
@@ -117,6 +141,8 @@ int main()
     test_read();
     test_update();
     test_delete();
+
+    //test_search();
 
     return 0;
 }

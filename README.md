@@ -55,6 +55,19 @@ auto constexpr s123 = concatenate_struct( s1, s2, s3 );
 
 This will concatenate mutiple meta-structures, and returns a meta-structure holding all the fields.
 
+### [Bonus] Map operations on every filed in a meta-structure
+
+```cpp
+auto constexpr s = create_struct( make_member<"one">( 1 ), make_member<"two">( 2UL ), make_member<"three">( 3.0f ) );
+constexpr auto print_func =  []<Member M>(M const& member) { std::cout << static_cast<std::string>(M::tag()) << ": " << member.value() << std::endl; return member.value(); };
+map_struct( s, print_func );
+```
+
+This will apply the `print_func` to each filed in the meta-structure.
+
+
+
+
 ## Tips and Pitfalls:
 
 The `constexpr` specifier is guaranteed for each meta-structure instance if and only if the value type's ctor is `constexpr`-aware.
