@@ -65,6 +65,35 @@ map_struct( s, print_func );
 
 This will apply the `print_func` to each filed in the meta-structure.
 
+## [Bonus] Polymorphism
+
+With a base class such as
+
+```cpp
+auto constexpr base = create_struct
+(
+    make_member<"f">( []( int x ){ std::cout << "call base::f with " << x << std::endl; } ),
+    make_member<"g">( []( int x ){ std::cout << "call base::g with " << x << std::endl; } ),
+    make_member<"h">( []( int x ){ std::cout << "call base::h with " << x << std::endl; } )
+);
+
+read_struct<"f">( base )( 1 );
+read_struct<"g">( base )( 2 );
+read_struct<"h">( base )( 3 );
+```
+
+We can mimick the creation of a derived class this way:
+
+```cpp
+auto constexpr derived_0 = update_struct<"f">( base,      []( int x ){ std::cout << "derived::f with " << x << std::endl; } );
+auto constexpr derived_1 = update_struct<"g">( derived_0, []( int x ){ std::cout << "derived::g with " << x << std::endl; } );
+auto constexpr derived =   update_struct<"h">( derived_1, []( int x ){ std::cout << "derived::h with " << x << std::endl; } );
+
+read_struct<"f">( derived )( 1 );
+read_struct<"g">( derived )( 2 );
+read_struct<"h">( derived )( 3 );
+```
+
 
 
 

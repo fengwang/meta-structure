@@ -116,23 +116,30 @@ void test_delete()
 }
 
 
-/*
-void test_search()
+void test_polymorphism()
 {
-    std::cout << std::endl << "test CREATE" << std::endl;
+    std::cout << std::endl << "test polymorphism" << std::endl;
     using namespace meta;
 
-    auto constexpr s = create_struct( make_member<"one">( 1 ), make_member<"two">( 2UL ), make_member<"three">( 3.0f ) );
-    constexpr auto print_func =  []<Member M>(M const& member) { std::cout << static_cast<std::string>(M::tag()) << ": " << member.value() << std::endl; return member.value(); };
-    std::cout << "created structure:\n" << std::endl;
-    map_struct( s, print_func );
+    auto constexpr base = create_struct
+    (
+        make_member<"f">( []( int x ){ std::cout << "call base::f with " << x << std::endl; } ),
+        make_member<"g">( []( int x ){ std::cout << "call base::g with " << x << std::endl; } ),
+        make_member<"h">( []( int x ){ std::cout << "call base::h with " << x << std::endl; } )
+    );
 
-    std::cout << "This structure has field one : " << search_struct<"one">( s ) << std::endl;
-    std::cout << "This structure has field two : " << search_struct<"two">( s ) << std::endl;
-    std::cout << "This structure has field three : " << search_struct<"three">( s ) << std::endl;
-    std::cout << "This structure has field four : " << search_struct<"four">( s ) << std::endl;
+    read_struct<"f">( base )( 1 );
+    read_struct<"g">( base )( 2 );
+    read_struct<"h">( base )( 3 );
+
+    auto constexpr derived_0 = update_struct<"f">( base,      []( int x ){ std::cout << "derived::f with " << x << std::endl; } );
+    auto constexpr derived_1 = update_struct<"g">( derived_0, []( int x ){ std::cout << "derived::g with " << x << std::endl; } );
+    auto constexpr derived =   update_struct<"h">( derived_1, []( int x ){ std::cout << "derived::h with " << x << std::endl; } );
+
+    read_struct<"f">( derived )( 1 );
+    read_struct<"g">( derived )( 2 );
+    read_struct<"h">( derived )( 3 );
 }
-*/
 
 
 int main()
@@ -142,7 +149,7 @@ int main()
     test_update();
     test_delete();
 
-    //test_search();
+    test_polymorphism();
 
     return 0;
 }
