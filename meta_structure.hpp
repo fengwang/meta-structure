@@ -196,6 +196,30 @@ constexpr auto map_struct( S const& structure, F && function ) noexcept
     } );
 }
 
+
+///
+/// @breif CHECK if a field in the meta structure.
+/// EXAMPLE:
+/// constexpr auto s = create_struct( m1, m2, m3 );
+/// constexpr bool has_a = struct_has<"a">( s );
+/// constexpr bool has_b = struct_has<"b">( s );
+///
+
+template< fixed_string tag_, Structure S >
+constexpr bool struct_has( S const& structure ) noexcept
+{
+    return structure( [&]<Member M, Member ... MS>( M const&, MS const& ... members ) noexcept
+    {
+        if constexpr ( M::tag() == tag_ )
+            return true;
+        else if constexpr ( sizeof...(MS) == 0 )
+            return false;
+        else
+            return struct_has<tag_>( create_struct(members...) );
+    } );
+}
+
+
 }//namespace meta
 
 #endif//META_STRUCTURE_HPP_INCLUDED_ASDLJOP4IJALKJASLKJDASFLKSDJSADFKJASDFOKJSDF

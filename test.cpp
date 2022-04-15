@@ -141,6 +141,41 @@ void test_polymorphism()
     read_struct<"h">( derived )( 3 );
 }
 
+void test_has()
+{
+    std::cout << std::endl << "test struct_has" << std::endl;
+    using namespace meta;
+
+    auto constexpr s = create_struct( make_member<"one">( 1 ), make_member<"two">( 2UL ), make_member<"three">( 3.0f ) );
+    constexpr auto print_func =  []<Member M>(M const& member) { std::cout << static_cast<std::string>(M::tag()) << ": " << member.value() << std::endl; return member.value(); };
+    std::cout << "created structure:\n" << std::endl;
+    map_struct( s, print_func );
+
+    {
+        constexpr bool has_one = struct_has<"one">( s );
+        if ( has_one )
+            std::cout << "struct has field ONE.\n";
+        else
+            std::cout << "struct does not have field ONE.\n";
+    }
+
+
+    auto constexpr t = delete_struct<"one">( s );
+    std::cout << "\nafter delete 'one', the structure becomes:" << std::endl;
+    map_struct( t, print_func );
+    {
+        constexpr bool has_one = struct_has<"one">( t );
+        if ( has_one )
+            std::cout << "struct has field ONE.\n";
+        else
+            std::cout << "struct does not have field ONE.\n";
+    }
+
+
+    std::cout << "---------------------------------------------------------\n";
+}
+
+
 
 int main()
 {
@@ -148,6 +183,7 @@ int main()
     test_read();
     test_update();
     test_delete();
+    test_has();
 
     test_polymorphism();
 
