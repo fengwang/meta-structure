@@ -28,20 +28,10 @@ template <unsigned long N>
 fixed_string(const char (&str)[N]) -> fixed_string<N - 1>;
 
 
-template<class... Ts>
-struct overload : Ts...
-{
-    using Ts::operator()...;
-}; // struct overload
-
-template<class... Ts> overload(Ts...) -> overload<Ts...>;
-
-
 template< fixed_string tag_, typename T >
 struct member
 {
     T value_;
-
     static constexpr auto tag() noexcept {return tag_; }
     constexpr auto value() const noexcept {return value_; }
 };//struct member
@@ -69,7 +59,6 @@ template< typename S >
 struct structure
 {
     S s_;
-
     template< typename F >
     constexpr auto operator()(F && function) const noexcept { return s_( std::forward<F>(function) ); }
 };//struct structure
@@ -87,12 +76,14 @@ template< typename T >
 concept Structure = is_structure_v<T>;
 
 ///
-/// @brief CREATE a meta structure with a fixed number of members
+/// @brief CREATE a meta structure with one or more members (fields).
 /// Example:
+/// \code{.cpp}
 /// constexpr auto m1 = make_member<"one">(1);
 /// constexpr auto m2 = make_member<"two">(2UL);
 /// constexpr auto m3 = make_member<"three">(2.0f);
 /// constexpr auto s = create_struct( m1, m2, m3 );
+/// \endcode
 ///
 template< Member ... Members >
 constexpr auto create_struct(Members const& ... members) noexcept
@@ -101,12 +92,14 @@ constexpr auto create_struct(Members const& ... members) noexcept
 }
 
 ///
-/// @brief concatenate_struct two meta structures
+/// @brief concatenate_struct two or more meta structures.
 /// Example:
+/// \code{.cpp}
 /// constexpr auto s1 = create_struct( m1, m2 );
 /// constexpr auto s2 = create_struct( m3 );
 /// constexpr auto s3 = concatenate_struct( s1, s2 );
 /// constexpr auto s4 = concatenate_struct( s1, s2, s3 );
+/// \endcode
 ///
 template< Structure S1, Structure S2 >
 constexpr auto concatenate_struct(S1 const& structure1, S2 const& structure2) noexcept
@@ -125,10 +118,12 @@ constexpr auto concatenate_struct(S const& s, SS const& ... ss ) noexcept
 }
 
 ///
-/// @brief READ a field from a meta structure.
+/// @brief READ a field from a meta structure. If not find this filed, will trigger a compilation error.
 /// Example:
+/// \code{.cpp}
 /// constexpr auto s = create_struct( m1, m2, m3 );
 /// constexpr auto v = read_struct<"one">( s );
+/// \endcode
 ///
 template< fixed_string tag_, Structure S >
 constexpr auto read_struct( S const& structure ) noexcept
@@ -138,15 +133,20 @@ constexpr auto read_struct( S const& structure ) noexcept
         if constexpr ( M::tag() == tag_ )
             return member1.value();
         else
+        {
+            static_assert( sizeof...(MS) > 0, "This field is not defined in the structure." );
             return read_struct<tag_>( create_struct(members...) );
+        }
     } );
 }
 
 ///
-/// @brief UPDATE a field in a meta structure.
+/// @brief UPDATE a field in a meta structure. If not find this filed, a new field <'tag_', value> will be appended.
 /// Example:
+/// \code{.cpp}
 /// constexpr auto s = create_struct( m1, m2, m3 );
 /// constexpr auto t = update_struct<"one">( s, 1.0f );
+/// \endcode
 ///
 template< fixed_string tag_, Structure S, typename T >
 constexpr auto update_struct( S const& structure, T const& value ) noexcept
@@ -156,15 +156,22 @@ constexpr auto update_struct( S const& structure, T const& value ) noexcept
         if constexpr ( M::tag() == tag_ )
             return create_struct( make_member<tag_>( value ), members... );
         else
-            return  concatenate_struct( create_struct(member1), update_struct<tag_>( create_struct(members...), value ) );
+        {
+            if constexpr ( sizeof...(MS) > 0 )
+                return concatenate_struct( create_struct(member1), update_struct<tag_>( create_struct(members...), value ) );
+            else
+                return create_struct( member1, make_member<tag_>( value ) );
+        }
     } );
 }
 
 ///
-/// @brief DELETE a field in a meta structure.
+/// @brief DELETE a field in a meta structure. If not find this filed, return the original structure.
 /// Example:
+/// \code{.cpp}
 /// constexpr auto s = create_struct( m1, m2, m3 );
 /// constexpr auto t = delete_struct<"one">( s );
+/// \endcode
 ///
 template< fixed_string tag_, Structure S >
 constexpr auto delete_struct( S const& structure ) noexcept
@@ -174,15 +181,22 @@ constexpr auto delete_struct( S const& structure ) noexcept
         if constexpr ( M::tag() == tag_ )
             return create_struct( members... );
         else
-            return concatenate_struct( create_struct( member1 ), delete_struct<tag_>( create_struct(members...) ) );
+        {
+            if constexpr ( sizeof...(MS) > 0 )
+                return concatenate_struct( create_struct( member1 ), delete_struct<tag_>( create_struct(members...) ) );
+            else
+                return create_struct( member1 );
+        }
     } );
 }
 
 ///
 /// @breif MAP a function to each field in the meta structure.
 /// EXAMPLE:
+/// \code{.cpp}
 /// constexpr auto s = create_struct( m1, m2, m3 );
 /// constexpr auto t = map_struct( s, []<Member M>(M const& member) { std::cout << static_cast<std::string>(M::tag()) << ": " << member.value() << std::endl; return member.value(); } );
+/// \endcode
 ///
 template< Structure S, typename F >
 constexpr auto map_struct( S const& structure, F && function ) noexcept
@@ -196,15 +210,15 @@ constexpr auto map_struct( S const& structure, F && function ) noexcept
     } );
 }
 
-
 ///
 /// @breif CHECK if a field in the meta structure.
 /// EXAMPLE:
+/// \code{.cpp}
 /// constexpr auto s = create_struct( m1, m2, m3 );
 /// constexpr bool has_a = struct_has<"a">( s );
 /// constexpr bool has_b = struct_has<"b">( s );
+/// \endcode
 ///
-
 template< fixed_string tag_, Structure S >
 constexpr bool struct_has( S const& structure ) noexcept
 {
@@ -218,7 +232,6 @@ constexpr bool struct_has( S const& structure ) noexcept
             return struct_has<tag_>( create_struct(members...) );
     } );
 }
-
 
 }//namespace meta
 

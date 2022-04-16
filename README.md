@@ -151,6 +151,11 @@ It should be be emphasised that, even though `std::string`'s ctor is supposed to
 
 
 
+## Test Environment
+
+- Linux x86_64 5.17.2
+- GCC 11.2.0
+
 ## License
 
 AGPLv3
@@ -160,6 +165,5 @@ AGPLv3
 
 - <https://github.com/google/cpp-from-the-sky-down>
 - <https://www.youtube.com/watch?v=FXfrojjIo80>
-
 
 
