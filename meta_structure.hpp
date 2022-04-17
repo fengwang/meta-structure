@@ -259,8 +259,8 @@ constexpr bool struct_has( S const& structure ) noexcept
 /// \code{.cpp}
 /// constexpr auto s = create_struct( make_member<"f">( []( int i ){ std::cout << "f: got int " << i << std::endl;} );
 /// constexpr auto t = upgrade_struct<"f">( s, []( double d ){ std::cout << "f: got double " << d << std::endl; } );
-/// read_struct<"f">( 1 ); // <-- will
-/// read_struct<"f">( 1.0 );
+/// read_struct<"f">( 1 ); // <-- will produce f: got int 1
+/// read_struct<"f">( 1.0 ); <-- will produce f: got double 1
 /// \endcode
 ///
 template< fixed_string tag_, Structure S, typename T >
