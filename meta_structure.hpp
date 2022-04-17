@@ -250,7 +250,11 @@ constexpr bool struct_has( S const& structure ) noexcept
 
 
 ///
-/// @brief UPGRADE a field in a meta structure, to make this field hold more data. If not find this filed, a new field <'tag_', value> will be appended.
+/// @brief UPGRADE a field in a meta structure, to make this field hold more data.
+///        If not find this filed, a new field <'tag_', value> will be appended.
+///        If find this filed,
+///           if value type is identical, the old value will be replaced,
+///           otherwise, the old value will co-exist with the new one by an `overloaded` object.
 /// Example:
 /// \code{.cpp}
 /// constexpr auto s = create_struct( make_member<"f">( []( int i ){ std::cout << "f: got int " << i << std::endl;} );
