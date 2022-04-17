@@ -32,6 +32,26 @@ auto constexpr t = update_struct<"one">( s, 1.01 );
 
 This updates the value stored in field 'one' to 1.01, and returns a meta-structure reflecting the change.
 
+### [Bonus] Upgrade a field in the meta-structure:
+
+```cpp
+auto s = create_struct( make_member<"func">( [](){ std::cout << "func called with null parameter.\n"; } ) );
+auto S = upgrade_struct<"func">( s, []( int ){ std::cout << "func called with integer parameter.\n"; } );
+read_struct<"func>( S )();
+read_struct<"func>( S )( 1 );
+```
+
+This mimicks an anonymous class with overloaded method `func`:
+
+```cpp
+struct anony
+{
+    void func() { std::cout << "func called with null parameter.\n"; }
+    void func(int) { std::cout << "func called with integer parameter.\n"; }
+};
+```
+
+
 
 ### Delete a field in the meta-structure:
 
@@ -75,6 +95,7 @@ constexpr bool has_0 = struct_has<"0">( s );
 ```
 
 This interface is friendly designed for `constexpr if`.
+
 
 
 ## [Bonus] Polymorphism

@@ -28,9 +28,19 @@ template <unsigned long N>
 fixed_string(const char (&str)[N]) -> fixed_string<N - 1>;
 
 
+template<class... Ts>
+struct overload : Ts...
+{
+    using Ts::operator()...;
+}; // struct overload
+
+template<class... Ts> overload(Ts...) -> overload<Ts...>;
+
+
 template< fixed_string tag_, typename T >
 struct member
 {
+    typedef T value_type;
     T value_;
     static constexpr auto tag() noexcept {return tag_; }
     constexpr auto value() const noexcept {return value_; }
@@ -165,6 +175,11 @@ constexpr auto update_struct( S const& structure, T const& value ) noexcept
     } );
 }
 
+
+
+
+
+
 ///
 /// @brief DELETE a field in a meta structure. If not find this filed, return the original structure.
 /// Example:
@@ -232,6 +247,37 @@ constexpr bool struct_has( S const& structure ) noexcept
             return struct_has<tag_>( create_struct(members...) );
     } );
 }
+
+
+///
+/// @brief UPGRADE a field in a meta structure, to make this field hold more data. If not find this filed, a new field <'tag_', value> will be appended.
+/// Example:
+/// \code{.cpp}
+/// constexpr auto s = create_struct( make_member<"f">( []( int i ){ std::cout << "f: got int " << i << std::endl;} );
+/// constexpr auto t = upgrade_struct<"f">( s, []( double d ){ std::cout << "f: got double " << d << std::endl; } );
+/// read_struct<"f">( 1 ); // <-- will
+/// read_struct<"f">( 1.0 );
+/// \endcode
+///
+template< fixed_string tag_, Structure S, typename T >
+constexpr auto upgrade_struct( S const& structure, T const& value ) noexcept
+{
+    return structure( [&]<Member M, Member ... MS>( M const& m, MS const& ... members ) noexcept
+    {
+        if constexpr ( M::tag() == tag_ )
+        {
+            if constexpr ( std::is_same_v<T, typename M::value_type> )
+                return create_struct( make_member<tag_>( value ), members... );
+            else
+                return create_struct( make_member<tag_>( overload( value, m.value() ) ), members... );
+        }
+        else if constexpr ( sizeof...(MS) == 0 )
+            return create_struct( m, make_member<tag_>( value ) );
+        else
+            return concatenate_struct( create_struct( m ), upgrade_struct<tag_>( create_struct( members... ) ) );
+    } );
+}
+
 
 }//namespace meta
 

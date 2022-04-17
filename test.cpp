@@ -176,6 +176,21 @@ void test_has()
 }
 
 
+// upgrade
+void test_upgrade()
+{
+    std::cout << std::endl << "test UPGRADE" << std::endl;
+    using namespace meta;
+
+    auto constexpr s = create_struct( make_member<"func">( [](){ std::cout << "calling func()\n"; } ) );
+    auto S = upgrade_struct<"func">( upgrade_struct<"func">( s,
+                                     []( int i ){ std::cout << "calling func with integer argument " << i << std::endl; } ),
+                                     []( double d ){ std::cout << "calling func with double argument " << d << std::endl; } );
+    read_struct<"func">(S)();
+    read_struct<"func">(S)( 1 );
+    read_struct<"func">(S)( 1.0 );
+}
+
 
 int main()
 {
@@ -186,6 +201,7 @@ int main()
     test_has();
 
     test_polymorphism();
+    test_upgrade();
 
     return 0;
 }
