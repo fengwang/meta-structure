@@ -40,8 +40,8 @@ This updates the value stored in field 'one' to 1.01, and returns a meta-structu
 
 ```cpp
 auto s = create_struct( make_member<"func">( [](){ std::cout << "func called with null parameter.\n"; } ) );
-read_struct<"func>( S )();
 auto S = upgrade_struct<"func">( s, []( int ){ std::cout << "func called with integer parameter.\n"; } );
+read_struct<"func>( S )();
 read_struct<"func>( S )( 1 );
 ```
 alternatively, you can

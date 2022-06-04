@@ -212,6 +212,15 @@ struct structure
         return has<tag_>();
     }
 
+    //
+    // upgrade. Note: this is different from update
+    //
+
+    template< fixed_string tag_, typename T >
+    constexpr auto upgrade( T const& value ) noexcept
+    {
+        return upgrade_struct( *this, value );
+    }
 
 };//struct structure
 
