@@ -34,8 +34,11 @@ void test_read()
     auto constexpr s = create_struct( make_member<"one">( 1 ), make_member<"two">( 2UL ), make_member<"three">( 3.0f ) );
 
     std::cout << "read one: " << read_struct<"one">( s ) << std::endl;
+    std::cout << "read one: " << s.read<"one">() << std::endl;
     std::cout << "read two: " << read_struct<"two">( s ) << std::endl;
+    std::cout << "read two: " << s.read<"two">() << std::endl;
     std::cout << "read three: " << read_struct<"three">( s ) << std::endl;
+    std::cout << "read three: " << s.read<"three">() << std::endl;
     std::cout << "---------------------------------------------------------\n";
 }
 
@@ -75,9 +78,9 @@ void test_update()
     constexpr auto t = update_struct<"one">( s, 1.01 );
     map_struct( t, print_func );
 
-    std::cout << "\nafter update two with '2.0'(float), the structure becomes:" << std::endl;
-    constexpr auto u = update_struct<"two">( t, id{1270} );
-    //constexpr auto u = update_struct<"two">( t, "12799" );
+    std::cout << "\nafter update two with id(1270), the structure becomes:" << std::endl;
+    //constexpr auto u = update_struct<"two">( t, id{1270} );
+    constexpr auto u = s.update<"two">( id{1270} );
     map_struct( u, print_func );
 
     std::cout << "\nafter update three with 'c'(char), the structure becomes:" << std::endl;
@@ -104,7 +107,8 @@ void test_delete()
     std::cout << "\nafter delete 'one', the structure becomes:" << std::endl;
     map_struct( t, print_func );
 
-    auto constexpr u = delete_struct<"two">( t );
+    //auto constexpr u = delete_struct<"two">( t );
+    auto constexpr u = t.destroy<"two">( );
     std::cout << "\nafter delete 'two', the structure becomes:" << std::endl;
     map_struct( u, print_func );
 

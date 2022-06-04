@@ -64,13 +64,153 @@ constexpr bool is_member_v = is_member<T>::value;
 template< typename T >
 concept Member = is_member_v<T>;
 
+/*
+template< fixed_string tag_, Structure S >
+constexpr auto read_struct( S const& structure ) noexcept
+
+template< fixed_string tag_, Structure S, typename T >
+constexpr auto update_struct( S const& structure, T const& value ) noexcept
+
+template< fixed_string tag_, Structure S >
+constexpr auto delete_struct( S const& structure ) noexcept
+
+template< Structure S, typename F >
+constexpr auto map_struct( S const& structure, F && function ) noexcept
+*/
 
 template< typename S >
 struct structure
 {
     S s_;
+
     template< typename F >
     constexpr auto operator()(F && function) const noexcept { return s_( std::forward<F>(function) ); }
+
+    //
+    // read, retrieve, get, browse, view
+    //
+
+    template< fixed_string tag_>
+    constexpr auto read() const noexcept
+    {
+        return read_struct<tag_>( *this );
+    }
+
+    template< fixed_string tag_>
+    constexpr auto retrieve() const noexcept
+    {
+        return read<tag_>();
+    }
+
+    template< fixed_string tag_>
+    constexpr auto get() const noexcept
+    {
+        return read<tag_>();
+    }
+
+    template< fixed_string tag_>
+    constexpr auto browse() const noexcept
+    {
+        return read<tag_>();
+    }
+
+    template< fixed_string tag_>
+    constexpr auto view() const noexcept
+    {
+        return read<tag_>();
+    }
+
+    //
+    // update, put, change, edit
+    //
+
+    template< fixed_string tag_, typename T >
+    constexpr auto update( T const& value ) const noexcept
+    {
+        return update_struct<tag_>( *this, value );
+    }
+
+    template< fixed_string tag_, typename T >
+    constexpr auto put( T const& value ) const noexcept
+    {
+        return update<tag_>( value );
+    }
+
+    template< fixed_string tag_, typename T >
+    constexpr auto change( T const& value ) const noexcept
+    {
+        return update<tag_>( value );
+    }
+
+    template< fixed_string tag_, typename T >
+    constexpr auto edit( T const& value ) const noexcept
+    {
+        return update<tag_>( value );
+    }
+
+
+    //
+    // (delete), destroy, remove, erase
+    //
+
+    template< fixed_string tag_ >
+    constexpr auto destroy() const noexcept
+    {
+        return delete_struct<tag_>( *this );
+    }
+
+    template< fixed_string tag_ >
+    constexpr auto remove() const noexcept
+    {
+        return destroy<tag_>();
+    }
+
+    template< fixed_string tag_ >
+    constexpr auto erase() const noexcept
+    {
+        return destroy<tag_>();
+    }
+
+
+    //
+    // map, for_each
+    //
+
+    template<typename F >
+    constexpr auto map( F&& function )
+    {
+        return map_struct( *this, function );
+    }
+
+    template<typename F >
+    constexpr auto for_each( F&& function )
+    {
+        return map( function );
+    }
+
+
+    //
+    // add, append, insert
+    //
+    template< fixed_string tag_, typename T >
+    constexpr auto add( T const& value ) const noexcept
+    {
+        return cons( (*this), create_structure( make_member<tag_>( value ) ) );
+    }
+
+    template< fixed_string tag_, typename T >
+    constexpr auto append( T const& value ) const noexcept
+    {
+        return add<tag_>( value );
+    }
+
+    template< fixed_string tag_, typename T >
+    constexpr auto insert( T const& value ) const noexcept
+    {
+        return add<tag_>( value );
+    }
+
+
 };//struct structure
 
 template< typename T >
@@ -101,6 +241,12 @@ constexpr auto create_struct(Members const& ... members) noexcept
     return structure{ [=]<typename F>( F&& function ) noexcept { if constexpr (sizeof...(Members)>=1) return std::forward<F>(function)( members... ); } };
 }
 
+template< Member ... Members >
+constexpr auto make_struct(Members const& ... members) noexcept
+{
+    return create_struct( members... );
+}
+
 ///
 /// @brief concatenate_struct two or more meta structures.
 /// Example:
@@ -126,6 +272,14 @@ constexpr auto concatenate_struct(S const& s, SS const& ... ss ) noexcept
     if constexpr (sizeof...(SS) == 0 ) return s;
     else return concatenate_struct(s, concatenate_struct(ss...));
 }
+
+template< typename ... TS >
+constexpr auto cons( TS const& ... ts ) noexcept
+{
+    return concatenate_struct( ts... );
+}
+
+
 
 ///
 /// @brief READ a field from a meta structure. If not find this filed, will trigger a compilation error.
