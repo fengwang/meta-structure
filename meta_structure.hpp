@@ -64,20 +64,6 @@ constexpr bool is_member_v = is_member<T>::value;
 template< typename T >
 concept Member = is_member_v<T>;
 
-/*
-template< fixed_string tag_, Structure S >
-constexpr auto read_struct( S const& structure ) noexcept
-
-template< fixed_string tag_, Structure S, typename T >
-constexpr auto update_struct( S const& structure, T const& value ) noexcept
-
-template< fixed_string tag_, Structure S >
-constexpr auto delete_struct( S const& structure ) noexcept
-
-template< Structure S, typename F >
-constexpr auto map_struct( S const& structure, F && function ) noexcept
-*/
-
 template< typename S >
 struct structure
 {
@@ -208,6 +194,22 @@ struct structure
     constexpr auto insert( T const& value ) const noexcept
     {
         return add<tag_>( value );
+    }
+
+    //
+    // has, contains
+    //
+
+    template< fixed_string tag_ >
+    constexpr bool has()  const noexcept
+    {
+        return struct_has<tag_>( *this );
+    }
+
+    template< fixed_string tag_ >
+    constexpr bool contain()  const noexcept
+    {
+        return has<tag_>();
     }
 
 
