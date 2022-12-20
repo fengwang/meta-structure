@@ -68,7 +68,7 @@ struct anony
 ```cpp
 auto constexpr t = delete_struct<"one">( s );
 // or
-auto constexpr t = s.detroy<"one">();
+auto constexpr t = s.destroy<"one">();
 ```
 
 This will delete the field 'one' in the meta-structure, and returns a meta-structure without this field.
